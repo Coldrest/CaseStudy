@@ -1,0 +1,355 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-Medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Avenir';
+    src: url('/fonts/Avenir-Book.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Avenir', sans-serif;
+    background-color: #fff;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 20px;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-family: 'Avenir', sans-serif;
+    font-weight: 400;
+    font-size: 45px;
+    margin-bottom: 60px;
+    color: #000;
+    text-align: center;
+    padding: 0 10px;
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+    padding: 0 10px;
+}
+
+.carousel-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 150px;
+    padding-bottom: 20px;
+    width: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+    .carousel-container::-webkit-scrollbar {
+        display: none;
+    }
+
+.product-card {
+    flex: 0 0 220px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: left;
+    background-color: #fff;
+    user-select: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+    .product-card img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        margin-bottom: 10px;
+        background-color: #F8F8F8;
+        border-radius: 15px;
+    }
+
+.product-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.product-price {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    margin-bottom: 17px;
+    color: #000;
+}
+
+.color-picker {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.color-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s, transform 0.1s;
+}
+
+    .color-swatch.selected {
+        border-color: #ddd;
+        transform: scale(1.1);
+        outline: 1px solid black;
+        outline-offset: 2px;
+    }
+
+.yellow {
+    background-color: #E6CA97;
+}
+
+.white {
+    background-color: #D9D9D9;
+}
+
+.rose {
+    background-color: #E1A4A9;
+}
+
+.metal-name {
+    font-family: 'Avenir', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.popularity-score {
+    font-family: 'Avenir', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.stars {
+    margin-right: 5px;
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+}
+
+    .stars .star {
+        display: inline-block;
+        color: #D9D9D9;
+    }
+
+        .stars .star.filled {
+            color: #E6CA97;
+        }
+
+        .stars .star.partial-fill {
+            background: linear-gradient(to right, #E6CA97 var(--fill-percentage), #D9D9D9 var(--fill-percentage));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+.arrow {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    position: absolute;
+    top: 25%;
+    transform: translateY(-50%);
+    user-select: none;
+    z-index: 10;
+}
+
+    .arrow.left {
+        left: -18px;
+    }
+
+    .arrow.right {
+        right: -18px;
+    }
+
+.arrow-top, .arrow-bottom {
+    background-color: #666;
+    height: 2px;
+    left: -5px;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+}
+
+.arrow.right .arrow-top {
+    transform: rotate(45deg);
+    transform-origin: bottom right;
+}
+
+.arrow.right .arrow-bottom {
+    transform: rotate(-45deg);
+    transform-origin: top right;
+}
+
+.arrow.left .arrow-top {
+    transform: rotate(-45deg);
+    transform-origin: bottom left;
+}
+
+.arrow.left .arrow-bottom {
+    transform: rotate(45deg);
+    transform-origin: top left;
+}
+
+.custom-scrollbar-container {
+    width: calc(100% - 20px);
+    max-width: 1350px;
+    height: 10px;
+    background-color: #E0E0E0;
+    border-radius: 4px;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.custom-scrollbar-thumb {
+    height: 100%;
+    background-color: #B0B0B0;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+}
+
+@media (max-width: 1024px) {
+    h1 {
+        font-size: 38px;
+        margin-bottom: 40px;
+    }
+
+    .carousel-wrapper {
+        padding: 0 10px;
+        max-width: 700px;
+    }
+
+    .product-card {
+        flex: 0 0 calc((100% - 40px) / 3);
+        max-width: 200px;
+    }
+
+        .product-card img {
+            width: 180px;
+            height: 180px;
+        }
+
+    .carousel-container {
+        gap: 20px;
+    }
+
+    .arrow.left {
+        left: -5px;
+    }
+
+    .arrow.right {
+        right: -5px;
+    }
+
+    .custom-scrollbar-container {
+        width: calc(100% - 20px);
+        max-width: calc(700px - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+
+    body {
+        padding-top: 30px;
+    }
+
+    .carousel-wrapper {
+        padding: 0 10px;
+        max-width: 500px;
+    }
+
+    .product-card {
+        flex: 0 0 calc((100% - 20px) / 2);
+        max-width: 180px;
+    }
+
+        .product-card img {
+            width: 160px;
+            height: 160px;
+        }
+
+    .product-name,
+    .product-price {
+        font-size: 14px;
+    }
+
+    .carousel-container {
+        gap: 20px;
+    }
+
+    .arrow {
+        top: 35%;
+        height: 18px;
+        width: 18px;
+    }
+
+        .arrow.left {
+            left: -10px;
+        }
+
+        .arrow.right {
+            right: -10px;
+        }
+
+    .custom-scrollbar-container {
+        width: calc(100% - 20px);
+        max-width: calc(500px - 20px);
+    }
+}

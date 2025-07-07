@@ -1,0 +1,248 @@
+﻿@{
+    ViewData["Title"] = "CaseStudy";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+
+    <h1>Product List</h1>
+
+    <div class="carousel-wrapper">
+        <div class="arrow left" id="arrow-left">
+            <div class="arrow-top"></div>
+            <div class="arrow-bottom"></div>
+        </div>
+        <div class="carousel-container" id="carousel-container">
+        </div>
+        <div class="arrow right" id="arrow-right">
+            <div class="arrow-top"></div>
+            <div class="arrow-bottom"></div>
+        </div>
+        <div class="custom-scrollbar-container">
+            <div class="custom-scrollbar-thumb" id="custom-scrollbar-thumb"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const carousel = document.getElementById('carousel-container');
+            const leftArrow = document.getElementById('arrow-left');
+            const rightArrow = document.getElementById('arrow-right');
+            const customScrollbarThumb = document.getElementById('custom-scrollbar-thumb');
+
+            let products = [];
+
+            async function fetchProducts() {
+                try {
+                    const res = await fetch('/api/product');
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    products = await res.json();
+                    renderProducts();
+                    carousel.scrollLeft = 0;
+                    updateScrollbarThumb();
+                } catch (err) {
+                    carousel.innerHTML = '<p style="text-align: center; width: 100%; color: red;">Error loading products. Please ensure your API is running and accessible at /api/product.</p>';
+                    console.error('Failed to fetch products:', err);
+                }
+            }
+
+            function renderProducts() {
+                carousel.innerHTML = '';
+
+                products.forEach((product, index) => {
+                    const availableColors = Object.keys(product.images);
+                    let defaultColor = null;
+
+                    if (availableColors.includes('yellow')) {
+                        defaultColor = 'yellow';
+                    } else if (availableColors.includes('white')) {
+                        defaultColor = 'white';
+                    } else if (availableColors.includes('rose')) {
+                        defaultColor = 'rose';
+                    } else if (availableColors.length > 0) {
+                        defaultColor = availableColors[0];
+                    }
+
+                    if (!defaultColor) {
+                        console.warn(`Product ${product.name} has no images available.`);
+                        return;
+                    }
+
+                    const card = document.createElement('div');
+                    card.classList.add('product-card');
+                    card.dataset.index = index;
+
+                    let starsHtml = '';
+                    const rating = product.popularityOutOfFive;
+                    const fullStars = Math.floor(rating);
+                    const fractionalPart = rating - fullStars;
+
+                    for (let i = 0; i < 5; i++) {
+                        if (i < fullStars) {
+                            starsHtml += `<span class="star filled">★</span>`;
+                        } else if (i === fullStars && fractionalPart > 0) {
+                            const fillPercentage = fractionalPart * 100;
+                            starsHtml += `<span class="star partial-fill" style="--fill-percentage: ${fillPercentage}%;">★</span>`;
+                        } else {
+                            starsHtml += `<span class="star">★</span>`;
+                        }
+                    }
+
+                    const preferredColorOrder = ['yellow', 'white', 'rose'];
+
+                    const sortedAvailableColors = preferredColorOrder.filter(color =>
+                        availableColors.includes(color)
+                    ).concat(availableColors.filter(color =>
+                        !preferredColorOrder.includes(color)
+                    ));
+
+                    let colorSwatchesHtml = '';
+                    sortedAvailableColors.forEach(color => {
+                        const isSelected = (color === defaultColor) ? 'selected' : '';
+                        colorSwatchesHtml += `<div class="color-swatch ${color} ${isSelected}" data-color="${color}"></div>`;
+                    });
+
+                    card.innerHTML = `
+                        <img src="${product.images[defaultColor]}" alt="${product.name}" class="product-image" data-color="${defaultColor}" />
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">$${product.price.toFixed(2)} USD</div>
+                        <div class="color-picker">
+                            ${colorSwatchesHtml}
+                        </div>
+                        <div class="metal-name">${defaultColor.charAt(0).toUpperCase() + defaultColor.slice(1)} Gold</div>
+                        <div class="popularity-score">
+                            <span class="stars">${starsHtml}</span>
+                            ${product.popularityOutOfFive}/5
+                        </div>
+                    `;
+
+                    const swatches = card.querySelectorAll('.color-swatch');
+                    const img = card.querySelector('.product-image');
+                    const metalName = card.querySelector('.metal-name');
+
+                    swatches.forEach(swatch => {
+                        swatch.addEventListener('click', () => {
+                            swatches.forEach(s => s.classList.remove('selected'));
+                            swatch.classList.add('selected');
+                            const color = swatch.dataset.color;
+                            img.src = product.images[color];
+                            img.dataset.color = color;
+                            metalName.textContent = color.charAt(0).toUpperCase() + color.slice(1) + " Gold";
+                        });
+                    });
+
+                    carousel.appendChild(card);
+                });
+
+                updateScrollbarThumb();
+            }
+
+            function updateScrollbarThumb() {
+                const scrollWidth = carousel.scrollWidth;
+                const clientWidth = carousel.clientWidth;
+                const scrollLeft = carousel.scrollLeft;
+
+                if (scrollWidth <= clientWidth) {
+                    customScrollbarThumb.style.width = '100%';
+                    customScrollbarThumb.style.transform = `translateX(0px)`;
+                    customScrollbarThumb.style.display = 'none';
+                    return;
+                } else {
+                    customScrollbarThumb.style.display = 'block';
+                }
+
+                const thumbWidthPercentage = (clientWidth / scrollWidth) * 100;
+                customScrollbarThumb.style.width = `${thumbWidthPercentage}%`;
+
+                const maxCarouselScrollLeft = scrollWidth - clientWidth;
+                const thumbTrackWidth = customScrollbarThumb.parentElement.clientWidth;
+                const maxThumbTranslateX = thumbTrackWidth - customScrollbarThumb.offsetWidth;
+
+                let thumbPosition = 0;
+                if (maxCarouselScrollLeft > 0) {
+                    thumbPosition = (scrollLeft / maxCarouselScrollLeft) * maxThumbTranslateX;
+                }
+                customScrollbarThumb.style.transform = `translateX(${thumbPosition}px)`;
+            }
+
+            function getScrollAmount() {
+                const firstCard = carousel.querySelector('.product-card');
+                if (firstCard) {
+                    const cardWidth = firstCard.offsetWidth;
+                    const gapStyle = getComputedStyle(carousel).gap;
+                    const gap = parseInt(gapStyle);
+
+                    return cardWidth + gap;
+                }
+                return 370;
+            }
+
+            leftArrow.addEventListener('click', () => {
+                carousel.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+            });
+
+            rightArrow.addEventListener('click', () => {
+                carousel.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+            });
+
+            carousel.addEventListener('scroll', updateScrollbarThumb);
+            window.addEventListener('resize', () => {
+                updateScrollbarThumb();
+            });
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            carousel.addEventListener('mousedown', (e) => {
+                isDown = true;
+                carousel.classList.add('active');
+                startX = e.pageX - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            });
+
+            carousel.addEventListener('mouseleave', () => {
+                isDown = false;
+                carousel.classList.remove('active');
+            });
+
+            carousel.addEventListener('mouseup', () => {
+                isDown = false;
+                carousel.classList.remove('active');
+            });
+
+            carousel.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2;
+                carousel.scrollLeft = scrollLeft - walk;
+            });
+
+            carousel.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].pageX - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            }, { passive: true });
+
+            carousel.addEventListener('touchmove', (e) => {
+                if (!e.touches[0]) return;
+                const x = e.touches[0].pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2;
+                carousel.scrollLeft = scrollLeft - walk;
+            }, { passive: true });
+
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>
